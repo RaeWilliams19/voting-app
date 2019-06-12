@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Header from "./components/Header";
-import Chat from "./components/Chat";
+import ChatContainer from "./components/ChatContainer";
 
 export default class App extends Component {
 
@@ -8,7 +8,7 @@ export default class App extends Component {
     return (
         <div>
           <Header />
-          <Chat />
+          <ChatContainer />
         </div>
     );
   }
