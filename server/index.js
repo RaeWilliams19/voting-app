@@ -3,7 +3,7 @@ const http = require("http");
 const socketIo = require("socket.io");
 const mongodb = require('mongodb').MongoClient;
 
-const port = process.env.PORT || 4001;
+const port = process.env.PORT || 4000;
 const index = require("./routes/index");
 
 const app = express();
@@ -13,18 +13,20 @@ const server = http.createServer(app);
 
 const io = socketIo(server);
 
+const dbName = 'mongochat'
+
 server.listen(port, () => console.log(`Listening on port ${port}`));
 
 //Connect to mongoDB
-mongodb.connect('mongodb://127.0.0.1/mongochat', { useNewUrlParser: true }, function(err, db){
-  if(err){
-    throw err;
-  }
+mongodb.connect(`mongodb://127.0.0.1/${dbName}`, { useNewUrlParser: true }, function(err, client){
+  if(err) throw err;
+
+  const db = client.db(`${dbName}`);
   
   console.log('MongoDB connected...')
   
   //Connect to Socket.io
-  io.on('connection', function () {
+  io.on('connection', function (socket) {
     let chat = db.collection('chats'); //Change to questions later
 
     //Create function to send status
@@ -32,14 +34,13 @@ mongodb.connect('mongodb://127.0.0.1/mongochat', { useNewUrlParser: true }, func
       socket.emit('status', s);
     }
 
-    //Get q's from mongoDB
+    //Get chats's from mongoDB
     chat.find().limit(100).sort({_id:1}).toArray(function(err, res){
-      if(err){
-        throw err
-      }
+      if(err) throw err;
 
       //Emit q's
       socket.emit('output', res);
+
     })
 
     //Handle input events
@@ -76,6 +77,7 @@ mongodb.connect('mongodb://127.0.0.1/mongochat', { useNewUrlParser: true }, func
     })
 
   });
+
 });
 
 
