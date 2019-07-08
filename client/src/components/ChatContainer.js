@@ -20,19 +20,6 @@ export default class ChatContainer extends Component {
                 this.setState({ output: data })
             })
         }
-
-        /* //handle input
-        document.getElementById('textarea').addEventListener('keydown', (event) => {
-            if (event.which === 13 && event.shiftKey === false) {
-                //emit to server input
-                socket.emit('input', {
-                    name: document.getElementById('username').value,
-                    message: document.getElementById('textarea').value
-                });
-
-                event.preventDefault();
-            }
-        }) */
     }
 
     getStatus = () => {
