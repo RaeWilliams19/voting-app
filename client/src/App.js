@@ -6,10 +6,10 @@ export default class App extends Component {
 
   render() {
     return (
-        <div>
-          <Header />
-          <ChatContainer />
-        </div>
+      <div>
+        <Header />
+        <ChatContainer />
+      </div>
     );
   }
 }

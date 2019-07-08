@@ -10,13 +10,14 @@ const createChat = () => {
 
 }
 
-const getTime = () => {
-
+const getDate = () => {
+    const date = new Date().toString("hh:mm");
+    return date
 }
 
 module.exports = {
     createMessage,
     createChat,
     createUser,
-    getTime
+    getDate
 }

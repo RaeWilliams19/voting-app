@@ -18,59 +18,57 @@ const dbName = 'mongochat'
 server.listen(port, () => console.log(`Listening on port ${port}`));
 
 //Connect to mongoDB
-mongodb.connect(`mongodb://127.0.0.1/${dbName}`, { useNewUrlParser: true }, function(err, client){
-  if(err) throw err;
+mongodb.connect(`mongodb://127.0.0.1/${dbName}`, { useNewUrlParser: true }, (err, client) => {
+  if (err) throw err;
 
   const db = client.db(`${dbName}`);
-  
+
   console.log('MongoDB connected...')
-  
+
   //Connect to Socket.io
-  io.on('connection', function (socket) {
+  io.on('connection', (socket) => {
     let chat = db.collection('chats'); //Change to questions later
 
     //Create function to send status
-    sendStatus = function(s){
+    sendStatus = (s) => {
       socket.emit('status', s);
     }
 
-    //Get chats's from mongoDB
-    chat.find().limit(100).sort({_id:1}).toArray(function(err, res){
-      if(err) throw err;
+    //Get chats from mongoDB
+    chat.find().limit(100).sort({ _id: 1 }).toArray((err, res) => {
+      if (err) throw err;
 
-      //Emit q's
+      //Emit chat mssgs
       socket.emit('output', res);
-
     })
 
     //Handle input events
-    socket.on('input', function(data){
+    socket.on('input', (data) => {
       let name = data.name;
       let message = data.message;
-
+      let date = data.date
+      console.log(data)
       //Check for name and mssg
-      if(name === '' || message === ''){
+      if (name === '' || message === '') {
         //Send error status
         sendStatus('Please enter a name and message')
       } else {
-        //Insert mssg
-        chat.insert({name: name, message: message, function(){
-          io.emit('output', [data])
-
+        //Insert mssg to db
+        chat.insertOne({ name: name, message: message, date: date}, () => {
           //Send status
           sendStatus({
             message: 'Message sent',
             clear: true
           })
-
-        }})
+        })
+        socket.emit('output', [data])
       }
     });
 
     //Handle clear
-    socket.on('clear', function(data){
+    socket.on('clear', () => {
       //Remove all chats from collection
-      chat.remove({}, function(){
+      chat.drop({}, () => {
         //Emit cleared
         socket.emit('Cleared');
       })

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import socketIOClient from 'socket.io-client';
+
 import Chat from './Chat';
 
 export default class ChatContainer extends Component {
@@ -9,22 +10,22 @@ export default class ChatContainer extends Component {
         output: ''
     }
 
-    componentDidMount() {
-        const {socket} = this.state;
+    async componentWillMount() {
+        const { socket } = this.state;
 
         //check for conection
         if (socket !== undefined) {
             console.log('Connected to socket...')
 
-            socket.on('output', (data) => {
-                this.setState({ output: data })
+            await socket.on('output', (data) => {
+                this.setState({ output: [...this.state.output, ...data] })
             })
         }
     }
 
     getStatus = () => {
         //get status from server
-        const {socket} = this.state;
+        const { socket } = this.state;
 
         socket.on('status', (data) => {
             this.setStatus((typeof data === 'object') ? data.message : data)
@@ -45,6 +46,12 @@ export default class ChatContainer extends Component {
         }
     }
 
+    handleClick = () => {
+        const { socket } = this.state;
+        socket.emit('clear')
+        this.setState({ output: '' })
+    }
+
     render() {
         const { output, socket } = this.state
 
@@ -52,11 +59,10 @@ export default class ChatContainer extends Component {
             <div className="container">
                 <div className="row">
                     <div className="col-md-6 offset-md-3 col-sm-12">
-                        <h1 style={{ textAlign: "center" }}>MongoChat
-                        <button className="btn btn-danger" id="clear">Clear</button>
-                        </h1>
                         <div id="status">{this.state.status}</div>
-                       <Chat messages={output} socket={socket}/>
+                        <Chat messages={output} socket={socket} />
+                        <br />
+                        <button className="btn btn-danger" id="clear" onClick={this.handleClick}>Clear chat</button>
                     </div>
                 </div>
             </div>
